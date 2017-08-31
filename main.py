@@ -12,6 +12,8 @@ Psudocode:
 	test the tree with the training and test data and report accuracies
 """
 
+from Training_Data import Training_Data
+from Node import Node
 #recursive algorithm to generate a decision tree using ID3
 def learn_tree(training_data,attributes):
 	if not training_data:
@@ -91,10 +93,25 @@ def entropy_calc(data):
 	return left_entropy + right_entropy
 
 
-training_data_list = List of training data objects
-test_data_list = List of test data objects
-attribute_list = List of valid attributes to split on
+def read_training_data(filename):
+	attributes_read = False
+	training_data = []
+	with open(filename) as data_file:
+			for line in data_file:
+				if not attributes_read:
+					attribute_list = line.rstrip('\n').split('\t')
+					attribute_list = attribute_list[:-1]
+					attributes_read = True
+				else:
+					val_lst = line.rstrip('\n').split('\t')
+					classification = val_lst[-1]
+					attr_lst = val_lst[:-1]
+					training_data.append(Training_Data(attribute_list,attr_lst,classification))
+	return attribute_list,training_data
+
+attribute_list,training_data = read_training_data('train.dat')
+#test_data_list = List of test data objects
 
 decision_tree = learn_tree(training_data_list,attribute_list)
-print(decision_tree)
-test(tree,training_data_list,test_data_list)
+#print(decision_tree)
+#test(tree,training_data_list,test_data_list)
