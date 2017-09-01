@@ -13,34 +13,25 @@ Psudocode:
 """
 
 import math
-from Training_Data import Training_Data
-from Test_Data import Test_Data
+from Data import Data
 from Node import Node
 
 #recursive algorithm to generate a decision tree using ID3
 def learn_tree(training_data,attributes):
 	if not training_data:
-		#print("No data in set")
 		return None
-	print(training_data,attributes)
 	if is_pure(training_data):
-		#print("Pure node, creating leaf")
 		return Node(classification = training_data[0].classification)
 	if not attributes:
-		#print("Mixed node, creating leaf with majority classification")
-		majority = majority_count(training_data)
-		return Node(classification = majority)
-	#print("Picking best attribute for data set")
+		return Node(classification = majority_count(training_data))
 	best_attribute = learn_attribute(training_data,attributes)
-	#print("Picked {}".format(best_attribute))
 	left,right = split_data(training_data,best_attribute)
 	attributes.remove(best_attribute)
-	#print("Creating new attribute node with two subtrees")
-	splitting_attribute = Node(attribute=best_attribute)
-	splitting_attribute.left = learn_tree(left,attributes)
-	splitting_attribute.right = learn_tree(right,attributes)
+	splitting_attribute_node = Node(attribute=best_attribute)
+	splitting_attribute_node.left = learn_tree(left,attributes)
+	splitting_attribute_node.right = learn_tree(right,attributes)
 	attributes.append(best_attribute)
-	return splitting_attribute
+	return splitting_attribute_node
 
 #split a list into 2 lists by attribute
 def split_data(data,attr):
@@ -59,23 +50,14 @@ def is_pure(data):
 
 #returns the majority classification 0 or 1 of a dataset
 def majority_count(data):
-	positive = 0
-	for instance in data:
-		if instance.classification == 1:
-			positive +=1
-	if positive / len(data) >= .5:
-		return 1
-	else:
-		return 0
+	return 1 if (len([True for instance in data if instance.classification == 1]) / float(len(data)) >= .5) else 0
 
 #algorithm for chosing attribute that will partition data with the lowest entropy
 def learn_attribute(data,attributes):
-	#print("Data set is {}\nAttributes is {}\n".format(data,attributes))
-	lowest_entropy = 2
+	lowest_entropy = 3
 	best_attribute = None
 	for attr in attributes:
 		conditional_entropy = conditional_entropy_calc(data,attr)
-		#print("H(D|{}) = {}".format(attr,conditional_entropy))
 		if conditional_entropy < lowest_entropy:
 			lowest_entropy = conditional_entropy
 			best_attribute = attr
@@ -110,11 +92,10 @@ def entropy_calc(data):
 		right_entropy = -1 * positive_probability * math.log(positive_probability,2)
 	return left_entropy + right_entropy
 
-#reads .dat file for training files and returns attribute list and training data list
-#FUTURE: will also do test data
-def read_training_data(filename,filename2):
+#reads .dat file for training and test files, returns a list of attributes, list of training data objects, and list of test data objects
+def read_data(filename,filename2):
 	attributes_read = False
-	training_data = []
+	training_data,test_data = [],[]
 	with open(filename) as data_file:
 			for line in data_file:
 				if not attributes_read:
@@ -123,20 +104,15 @@ def read_training_data(filename,filename2):
 					attributes_read = True
 				else:
 					val_lst = line.rstrip('\n').split('\t')
-					classification = val_lst[-1]
-					attr_lst = val_lst[:-1]
-					training_data.append(Training_Data(attribute_list,attr_lst,classification))
+					training_data.append(Data(attribute_list,val_lst[:-1],val_lst[-1]))
 	attributes_read = False
-	test_data = []
 	with open(filename2) as data_file:
 		for line in data_file:
 			if not attributes_read:
 				attributes_read = True
 			else:
 				val_lst = line.rstrip('\n').split('\t')
-				classification = val_lst[-1]
-				attr_lst = val_lst[:-1]
-				test_data.append(Test_Data(attribute_list,attr_lst,classification))
+				test_data.append(Data(attribute_list,val_lst[:-1],val_lst[-1]))
 	return attribute_list,training_data,test_data
 
 def print_decision_tree(decision_tree):
@@ -153,29 +129,24 @@ def print_decision_tree(decision_tree):
 		else:
 			print('{}'.format(decision_tree.classification))
 
-
+#function to test tree accuracy on a collection of data
 def test_tree_accuracy(decision_tree,test_data):
-	correct = 0
+	correct = 0.0
 	for instance in test_data:
-		predicition = predicited_value(instance,decision_tree)
-		if predicition == instance.classification:
+		if predicited_value(instance,decision_tree) == instance.classification:
 			correct += 1
-	return float(correct) / len(test_data)
+	return correct / len(test_data)
 
-
+#given a tree and data, predicts the label of the data
 def predicited_value(instance,tree):
 	if tree.classification is not None:
 		return tree.classification
-	atr = tree.attribute
-	if instance.attr_dict[atr] == 0:
+	if instance.attr_dict[tree.attribute] == 0:
 		return predicited_value(instance,tree.left)
 	else:
 		return predicited_value(instance,tree.right)
 
-attribute_list,training_data,test_data = read_training_data('train.dat','test.dat')
+attribute_list,training_data,test_data = read_data('train.dat','test.dat')
 decision_tree = learn_tree(training_data,attribute_list)
 print(test_tree_accuracy(decision_tree,training_data))
 print(test_tree_accuracy(decision_tree,test_data))
-#print_decision_tree(decision_tree)
-#print(decision_tree)
-#test(tree,training_data_list,test_data_list)
