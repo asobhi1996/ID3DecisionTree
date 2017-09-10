@@ -1,3 +1,4 @@
+#Data object that stores attributes in a dictionary and a classification value
 class Data:
 	def __init__(self,attributes,attr_values,classification):
 		self.attr_dict = {attr : int(attr_value) for attr,attr_value in zip(attributes,attr_values)}
