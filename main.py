@@ -142,19 +142,19 @@ def print_decision_tree(decision_tree,depth):
 		print("ERROR")
 		sys.exit()
 	else:
-		if decision_tree.attribute is not None:
+		if not decision_tree.is_leaf():
 
-			if decision_tree.left is not None:
+			if not decision_tree.left.is_leaf():
 				print("|  " * depth,end='')
-				if decision_tree.left.attribute is not None:
+				if not decision_tree.left.is_leaf():
 					print('{} = 0 :'.format(decision_tree.attribute))
 					print_decision_tree(decision_tree.left,depth+1)
 				else:
 					print('{} = 0 :\t{}'.format(decision_tree.attribute,decision_tree.left.classification))
 
-			if decision_tree.right is not None:
+			if not decision_tree.right.is_leaf():
 				print("|  " * depth,end='')
-				if decision_tree.right.attribute is not None:
+				if not decision_tree.right.is_leaf():
 					print('{} = 1 :'.format(decision_tree.attribute))
 					print_decision_tree(decision_tree.right,depth+1)
 				else:
@@ -187,6 +187,6 @@ if __name__ == "__main__":
 	most_common_class = majority_count(training_data + test_data)
 	attribute_order_list = attribute_list.copy()
 	decision_tree = learn_tree(training_data,attribute_list)
+	print_decision_tree(decision_tree,0)
 	print("Accuracy on training data ({} instances) is {:.2%}".format(len(training_data),test_tree_accuracy(decision_tree,training_data)))
 	print("Accuracy on test data ({} instances) is {:.2%}".format(len(test_data),test_tree_accuracy(decision_tree,test_data)))
-	print_decision_tree(decision_tree,0)

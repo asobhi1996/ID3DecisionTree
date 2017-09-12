@@ -7,3 +7,9 @@ class Node:
 		self.left = None
 		self.right = None
 		self.classification = classification
+
+	def is_leaf(self):
+		if self.attribute is None and self.classification is not None:
+			return True
+		else:
+			return False
