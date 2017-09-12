@@ -1,5 +1,5 @@
 """
-Main file for generating an ID3 tree from training data
+Main file for generating an ID3 tree from training data and performing accuracy tests on both training and test data
 Input: two command line arguments. First is a file with lableled training data and second is unlabeled test data. Training data includes up to N attributes and the last attribute must be the classification
 All input files will be in the following format. The first line will contain a tab-seperated list of attribute names. The reamining lines correspond to a labeled data instance, and consist of a tab-seperated list of 0s or 1s, corresponding to each attribute.
 Output: A decision tree object to classify data. The program will also outpout a visual representatino of the tree to the standard output and show training and test accuracy percentages.
@@ -13,7 +13,7 @@ Psudocode:
 	test the tree with the training and test data and report accuracies
 """
 
-import math,sys
+import math,sys,random
 from Data import Data
 from Node import Node
 
@@ -181,6 +181,7 @@ def predicited_value(instance,tree):
 
 #main function
 #reads data, learns the tree, tests accuracy, and prints to console
+
 if __name__ == "__main__":
 	attribute_list,training_data,test_data = read_data(sys.argv[1],sys.argv[2])
 	most_common_class = majority_count(training_data + test_data)

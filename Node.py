@@ -1,3 +1,6 @@
+#Tree Node class for the decision tree
+#left indicates 0, right indicates 1
+#if attributes is none, then it is an leaf node, otherwise, classification is none and it is an internal node
 class Node:
 	def __init__(self,attribute=None,classification=None):
 		self.attribute = attribute
